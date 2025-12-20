@@ -1,10 +1,14 @@
 'use strict';
 
-function Q(params){
-    if(typeof params == 'string') return new QueryArray(...document.querySelectorAll(params));
-    if(params instanceof QueryArray) return params;
-    if(typeof params == 'function') return Q.ready(params);
-    if(params) return new QueryArray(params);
+function Q(params) {
+    if (!params) return new QueryArray(); // empty params protect
+    if (typeof params === 'string') { return new QueryArray(...document.querySelectorAll(params));}   
+    if (params instanceof QueryArray) return params;
+    if (typeof params === 'function') return Q.ready(params);
+    if (params instanceof NodeList || Array.isArray(params)) { return new QueryArray(...params);}
+    if (params instanceof Node) { return new QueryArray(params); }
+    if (typeof params[Symbol.iterator] === 'function') { return new QueryArray(...params); } // HTMLCollection as example
+    return new QueryArray(params);
 }
 
 Q.build = {
