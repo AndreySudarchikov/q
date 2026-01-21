@@ -62,12 +62,7 @@ Q.objExtend = function extend(obj1, obj2) {
     return obj1;
 };
 
-Q.urlQuery = function(){
-    var search = location.search.substring(1);
-    if(search.length > 0)
-        return JSON.parse('{"' + search.replace(/&/g, '","').replace(/=/g,'":"') + '"}', function(key, value) { return key===""?value:decodeURIComponent(value) });
-    return {};
-}
+Q.urlQuery = new URLSearchParams(window.location.search);
 
 Q.cssVar = function(target,varName,value){
     if(!target) target=document.documentElement;
@@ -99,9 +94,9 @@ Q.cancelEvent = e => { e.stopPropagation(); e.preventDefault(); }
 
 Q.dispatch = function(event,detail={}) { window.dispatchEvent(new CustomEvent(event, { detail: detail })); }
 
-Q.log = (...a) => Q.config.debug && console.log(...a);
-Q.warn = (...a) => Q.config.debug && console.warn(...a);
-Q.error = (...a) => Q.config.debug && console.error(...a);
+Q.log = Q.config.debug ? console.log.bind(console) : () => {};
+Q.warn = Q.config.debug ? console.warn.bind(console) : () => {};
+Q.error = Q.config.debug ? console.error.bind(console) : () => {};
 
 const loadCache = new Map();
 const svgCache = new Map();
