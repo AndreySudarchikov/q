@@ -269,13 +269,9 @@ class QueryArray extends Array {
         return this;
     }
 
-    classToggle(classString, cond=true){
-        if(cond) changeClass(this,classString,'toggle');
-        return this;
-    }
-
-    classToggleIf(classString, cond){
-        changeClass(this,classString,(cond ? 'add' : 'remove'));
+    classToggle(classString, cond){
+        if(typeof cond == 'undefined') changeClass(this,classString,'toggle');
+        else changeClass(this,classString,(cond ? 'add' : 'remove'));
         return this;
     }
 
