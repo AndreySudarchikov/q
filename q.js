@@ -51,6 +51,7 @@ Q.create = (elemName,params={}) => {
 }
 
 Q.clamp = (value,min,max) => { return Math.max(min,Math.min(value,max)); }
+Q.wrap = (value,min,max) => { return value < min ? max : value > max ? min : value; }
 
 Q.objExtend = function extend(obj1, obj2) {
     for (let key in obj2) {
@@ -307,6 +308,42 @@ class QueryArray extends Array {
                 if(typeof onload == 'function') onload(elem,txt); 
             });
         });
+    }
+
+    trackClasses() {
+        if (!this._ClassChangeObserver) {
+            this._ClassChangeObserver = new MutationObserver((mutations) => {
+                mutations.forEach(mutation => {
+                    if (mutation.attributeName !== 'class') return;
+                    
+                    const target = mutation.target;
+                    const oldClasses = (mutation.oldValue || '').split(' ').filter(Boolean);
+                    const currentClasses = Array.from(target.classList);
+                    
+                    currentClasses.filter(c => !oldClasses.includes(c)).forEach(c => {
+                        target.dispatchEvent(new CustomEvent(`onClassAdded-${c}`, { bubbles: true }));
+                    });
+                    
+                    oldClasses.filter(c => !currentClasses.includes(c)).forEach(c => {
+                        target.dispatchEvent(new CustomEvent(`onClassRemoved-${c}`, { bubbles: true }));
+                    });
+                });
+            });
+        }
+
+        this.forEach(elem => {
+            this._ClassChangeObserver.observe(elem, { attributes: true, attributeOldValue: true });
+        });
+        
+        return this;
+    }
+
+    untrackClasses() {
+        if (this._ClassChangeObserver) {
+            this._ClassChangeObserver.disconnect();
+            this._ClassChangeObserver = null; 
+        }
+        return this;
     }
     
 }
